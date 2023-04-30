@@ -1,0 +1,16 @@
+FROM node:18 as builder
+# Copy the front end project
+COPY ./frontend /opt/app
+WORKDIR /opt/app
+
+# Prepare and compile the project
+RUN npm install --dev
+RUN npm run build
+
+
+FROM nginx as runner
+# Copy the resulting project
+COPY --from=builder /opt/app/dist /opt/dist
+
+# Copy the default config
+COPY ./backend/nginx/default.conf /etc/nginx/conf.d/default.conf

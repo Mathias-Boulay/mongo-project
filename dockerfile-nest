@@ -1,0 +1,21 @@
+FROM node:18 as builder
+
+# Copy the back end project
+COPY ./backend /opt/app
+WORKDIR /opt/app
+
+# Prepare and compile the project
+RUN npm install --dev
+RUN npm run build
+
+
+FROM node:18 as runner
+# Get the compiled app and the js modules
+COPY --from=builder /opt/app/dist /opt/dist
+COPY ./backend/package*.json /opt/dist
+
+WORKDIR /opt/dist
+RUN npm install
+
+ENTRYPOINT [ "node", "main.js" ]
+
